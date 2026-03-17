@@ -19,14 +19,14 @@ local ReplicatedStorage = Services.ReplicatedStorage
 
 local LocalPlayer = Players.LocalPlayer
 
--- ==================== CONFIGURATION ====================
+-- ==================== CONFIGURATION (VAPE COLORS) ====================
 local Config = {
     Gui = {
         Main = {
             Size = UDim2.new(0, 400, 0,340),
             Position = UDim2.new(0.5, -200, 0.5, -200),
-            AccentColor = Color3.fromRGB(255, 50, 50),
-            BgColor = Color3.fromRGB(15, 15, 15),
+            AccentColor = Color3.fromRGB(63, 167, 255),  -- Vape blue
+            BgColor = Color3.fromRGB(37, 37, 37),        -- Panel background #252525
             Title = "SWAVE HUB",
             Draggable = true
         }
@@ -44,7 +44,7 @@ local Config = {
     VehicleNames = {"Flying Carpet", "Santa Sleigh", "Witch's Broom"},
     Beam = {
         Width = 0.7,
-        Color = ColorSequence.new(Color3.fromRGB(255, 50, 50)),
+        Color = ColorSequence.new(Color3.fromRGB(63, 167, 255)),  -- Vape blue
         LightEmission = 1,
         Transparency = NumberSequence.new(0),
         FaceCamera = true
@@ -192,34 +192,6 @@ local function createTextLabel(parent, size, pos, text, textColor, font, textSiz
     l.TextWrapped = true
     l.Parent = parent
     return l
-end
-
-local function createTextButton(parent, size, pos, text, bgColor, textColor)
-    local b = Instance.new("TextButton")
-    b.Size = size
-    b.Position = pos
-    b.Text = text
-    b.BackgroundColor3 = bgColor
-    b.TextColor3 = textColor or Color3.new(1,1,1)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 14
-    b.AutoButtonColor = false
-    b.Parent = parent
-    return b
-end
-
-local function createTextBox(parent, size, pos, placeholder)
-    local tb = Instance.new("TextBox")
-    tb.Size = size
-    tb.Position = pos
-    tb.PlaceholderText = placeholder
-    tb.ClearTextOnFocus = false
-    tb.BackgroundColor3 = Color3.fromRGB(30,30,30)
-    tb.TextColor3 = Color3.new(1,1,1)
-    tb.Font = Enum.Font.Gotham
-    tb.TextSize = 14
-    tb.Parent = parent
-    return tb
 end
 
 -- ==================== BEAM ====================
@@ -517,9 +489,8 @@ local function disableAutoSteal()
     State.cachedPromptPart = nil
 end
 
--- ==================== SMART TP (SCREEN GUI + VISUAL MARKERS + DRAGGABLE) ====================
+-- ==================== SMART TP (FIXED) ====================
 local function createBaseMarker(location)
-    -- A glowing part at the base location
     local part = Instance.new("Part")
     part.Name = "SmartTP_Marker_" .. location.Name
     part.Size = Vector3.new(4, 4, 4)
@@ -527,19 +498,17 @@ local function createBaseMarker(location)
     part.Anchored = true
     part.CanCollide = false
     part.Transparency = 0.5
-    part.BrickColor = BrickColor.new("Really red")
+    part.BrickColor = BrickColor.new("Bright blue")
     part.Material = Enum.Material.Neon
     part.Shape = Enum.PartType.Ball
     part.Parent = workspace
 
-    -- Add a point light for glow
     local light = Instance.new("PointLight")
     light.Color = Config.Gui.Main.AccentColor
     light.Range = 20
     light.Brightness = 2
     light.Parent = part
 
-    -- Add a beam for visibility
     local attachment = Instance.new("Attachment", part)
     local beam = Instance.new("Beam")
     beam.Attachment0 = attachment
@@ -558,40 +527,35 @@ local function enableSmartTp()
     if State.isSmartTpEnabled then return end
     State.isSmartTpEnabled = true
 
-    -- Create markers at each base
     for _, loc in ipairs(BaseLocations) do
         local marker = createBaseMarker(loc)
         table.insert(State.smartTpParts, marker)
     end
 
-    -- Create ScreenGui with buttons
     local gui = Instance.new("ScreenGui")
     gui.Name = "SmartTPGui"
     gui.ResetOnSpawn = false
     gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    table.insert(State.smartTpParts, gui)  -- store to destroy later
+    table.insert(State.smartTpParts, gui)
 
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 250, 0, #BaseLocations * 50 + 20)
     frame.Position = UDim2.new(0.8, -270, 0.5, -100)
-    frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    frame.BackgroundColor3 = Config.Gui.Main.BgColor
     frame.BackgroundTransparency = 0.2
     frame.BorderSizePixel = 0
     frame.Parent = gui
 
-    -- Rounded corners
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 10)
     corner.Parent = frame
 
-    -- Glowing outline
     local stroke = Instance.new("UIStroke")
     stroke.Color = Config.Gui.Main.AccentColor
     stroke.Thickness = 2
     stroke.Transparency = 0.3
     stroke.Parent = frame
 
-    -- Title (also serves as drag handle)
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 30)
     title.Position = UDim2.new(0, 0, 0, 5)
@@ -602,7 +566,7 @@ local function enableSmartTp()
     title.Font = Enum.Font.GothamBold
     title.Parent = frame
 
-    -- Make the panel draggable by the title
+    -- Dragging
     local dragging = false
     local dragInput = nil
     local dragStart = nil
@@ -639,12 +603,11 @@ local function enableSmartTp()
         end
     end)
 
-    -- Create a button for each base
     for i, loc in ipairs(BaseLocations) do
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(0.9, 0, 0, 35)
         btn.Position = UDim2.new(0.05, 0, 0, 40 + (i-1) * 45)
-        btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        btn.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
         btn.Text = "🚀 " .. loc.Name
         btn.TextColor3 = Color3.new(1,1,1)
         btn.TextScaled = true
@@ -652,7 +615,6 @@ local function enableSmartTp()
         btn.AutoButtonColor = false
         btn.Parent = frame
 
-        -- Style
         local btnCorner = Instance.new("UICorner")
         btnCorner.CornerRadius = UDim.new(0, 8)
         btnCorner.Parent = btn
@@ -663,32 +625,33 @@ local function enableSmartTp()
         btnStroke.Transparency = 0.5
         btnStroke.Parent = btn
 
-        -- Hover effect
         btn.MouseEnter:Connect(function()
             btn.BackgroundColor3 = Config.Gui.Main.AccentColor
             btn.TextColor3 = Color3.new(0,0,0)
         end)
         btn.MouseLeave:Connect(function()
-            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            btn.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
             btn.TextColor3 = Color3.new(1,1,1)
         end)
 
-        -- Teleport on click
         btn.MouseButton1Click:Connect(function()
+            -- Ensure character and root part exist
             updateCharacterCache()
-            if State.humanoidRootPart then
+            local root = State.humanoidRootPart
+            if not root then
+                -- Fallback: try to get character directly
+                local char = LocalPlayer.Character
+                root = char and char:FindFirstChild("HumanoidRootPart")
+            end
+            if root and loc.CFrame then
                 -- Flash feedback
                 btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
                 task.wait(0.1)
                 btn.BackgroundColor3 = Config.Gui.Main.AccentColor
-
-                State.humanoidRootPart.CFrame = loc.CFrame
+                -- Teleport
+                root.CFrame = loc.CFrame
             else
-                task.wait(0.2)
-                updateCharacterCache()
-                if State.humanoidRootPart then
-                    State.humanoidRootPart.CFrame = loc.CFrame
-                end
+                warn("Smart TP: Cannot find HumanoidRootPart or invalid CFrame for " .. loc.Name)
             end
         end)
     end
@@ -703,183 +666,6 @@ local function disableSmartTp()
     State.smartTpParts = {}
 end
 
--- ==================== MAIN GUI ====================
-local function createMainGUI()
-    if State.mainGui then State.mainGui:Destroy() end
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "SwaveHubPVPSlot"
-    gui.ResetOnSpawn = false
-    gui.IgnoreGuiInset = true
-    safeParentGui(gui)
-    State.mainGui = gui
-    local cfg = Config.Gui.Main
-    local frame = Instance.new("Frame")
-    frame.Size = cfg.Size
-    frame.Position = cfg.Position
-    frame.BackgroundColor3 = cfg.BgColor
-    frame.Active = true
-    frame.Draggable = cfg.Draggable
-    frame.Parent = gui
-    createUICorner(frame, UDim.new(0,6))
-    createUIStroke(frame, cfg.AccentColor, 2)
-
-    -- Warning label
-    local warningLabel = createTextLabel(frame, UDim2.new(0.8,0,0,30), UDim2.new(0.1,0,0.86,0), "DO NOT MOVE", Color3.fromRGB(255,100,100), Enum.Font.GothamBold, 14)
-    warningLabel.BackgroundColor3 = Color3.fromRGB(40,0,0)
-    warningLabel.Visible = false
-    createUICorner(warningLabel)
-    createUIStroke(warningLabel, Color3.fromRGB(255,0,0), 1.5)
-
-    -- Title & UserID
-    createTextLabel(frame, UDim2.new(1,0,0,45), UDim2.new(0,0,0,8), cfg.Title, cfg.AccentColor, Enum.Font.GothamBold, 20)
-    createTextLabel(frame, UDim2.new(1,0,0,25), UDim2.new(0,0,0,50), "UserID: "..LocalPlayer.UserId, Color3.new(1,1,1), Enum.Font.Gotham, 12)
-
-    -- Button layout - two columns (5 buttons each)
-    local buttonSize = UDim2.new(0.43, 0, 0, 38)
-    local leftX = 0.04
-    local rightX = 0.53
-    local startY = 85
-    local incY = 48
-    local leftY = startY
-    local rightY = startY
-
-    -- Left column buttons
-    local baseA = createTextButton(frame, buttonSize, UDim2.new(leftX, 0, 0, leftY), "TP to BASE A", Color3.fromRGB(50,100,255))
-    leftY += incY
-    local baseB = createTextButton(frame, buttonSize, UDim2.new(leftX, 0, 0, leftY), "TP to BASE B", Color3.fromRGB(255,50,50))
-    leftY += incY
-    local setPos = createTextButton(frame, buttonSize, UDim2.new(leftX, 0, 0, leftY), "SET POS", Color3.fromRGB(255,50,50))
-    leftY += incY
-    local forward = createTextButton(frame, buttonSize, UDim2.new(leftX, 0, 0, leftY), "TP forward", Color3.fromRGB(0,170,255))
-    leftY += incY
-    -- SMART TP BUTTON
-    local smartTpBtn = createTextButton(frame, buttonSize, UDim2.new(leftX, 0, 0, leftY), "SMART TP: OFF", Color3.fromRGB(150,150,150))
-
-    -- Right column buttons
-    local clear = createTextButton(frame, buttonSize, UDim2.new(rightX, 0, 0, rightY), "CLEAR POS", Color3.fromRGB(80,80,80))
-    rightY += incY
-    local clickTpBtn = createTextButton(frame, buttonSize, UDim2.new(rightX, 0, 0, rightY), "CLICK TP: OFF", Color3.fromRGB(100,200,100))
-    rightY += incY
-    local antiKnockbackBtn = createTextButton(frame, buttonSize, UDim2.new(rightX, 0, 0, rightY), "ANTI KB: OFF", Color3.fromRGB(200,100,50))
-    rightY += incY
-    local aimbotBtn = createTextButton(frame, buttonSize, UDim2.new(rightX, 0, 0, rightY), "2D AIMBOT: OFF", Color3.fromRGB(255,50,255))
-    rightY += incY
-    local autoStealBtn = createTextButton(frame, buttonSize, UDim2.new(rightX, 0, 0, rightY), "AUTO STEAL: OFF", Color3.fromRGB(255,150,50))
-
-    -- Style all buttons
-    for _, btn in {baseA, baseB, setPos, forward, smartTpBtn, clear, clickTpBtn, antiKnockbackBtn, aimbotBtn, autoStealBtn} do
-        createUICorner(btn, UDim.new(0,6))
-        createUIStroke(btn, btn.BackgroundColor3:Lerp(Color3.new(0,0,0), 0.4), 1.5)
-    end
-
-    -- Connections
-    baseA.MouseButton1Click:Connect(function() teleportSequence(Config.BaseATeleportPoints, warningLabel) end)
-    baseB.MouseButton1Click:Connect(function() teleportSequence(Config.BaseBTeleportPoints, warningLabel) end)
-
-    setPos.MouseButton1Click:Connect(function()
-        updateCharacterCache()
-        if State.humanoidRootPart then
-            State.savedPosition = State.humanoidRootPart.CFrame
-            createBeam(State.savedPosition.Position)
-            setPos.Text = "POS SET"
-            task.wait(0.5)
-            setPos.Text = "SET POS"
-        end
-    end)
-
-    forward.MouseButton1Click:Connect(function()
-        updateCharacterCache()
-        if State.humanoidRootPart then
-            State.humanoidRootPart.CFrame = State.humanoidRootPart.CFrame * CFrame.new(0,0,-5)
-        end
-    end)
-
-    clear.MouseButton1Click:Connect(function()
-        clearSavedPosition()
-        clear.Text = "CLEARED"
-        task.wait(0.5)
-        clear.Text = "CLEAR POS"
-    end)
-
-    -- CLICK TP
-    clickTpBtn.MouseButton1Click:Connect(function()
-        State.isClickTpEnabled = not State.isClickTpEnabled
-        if State.isClickTpEnabled then
-            clickTpBtn.Text = "CLICK TP: ON"
-            clickTpBtn.BackgroundColor3 = Color3.fromRGB(50,255,50)
-            local mouse = LocalPlayer:GetMouse()
-            if State.clickTpConnection then State.clickTpConnection:Disconnect() end
-            State.clickTpConnection = mouse.Button1Down:Connect(function()
-                updateCharacterCache()
-                if not State.humanoidRootPart then return end
-                local hit = mouse.Hit
-                if hit then
-                    local destination = hit.Position + Vector3.new(0, 3, 0)
-                    State.humanoidRootPart.CFrame = CFrame.new(destination)
-                end
-            end)
-        else
-            clickTpBtn.Text = "CLICK TP: OFF"
-            clickTpBtn.BackgroundColor3 = Color3.fromRGB(100,200,100)
-            if State.clickTpConnection then
-                State.clickTpConnection:Disconnect()
-                State.clickTpConnection = nil
-            end
-        end
-    end)
-
-    antiKnockbackBtn.MouseButton1Click:Connect(function()
-        State.isAntiKnockbackEnabled = not State.isAntiKnockbackEnabled
-        if State.isAntiKnockbackEnabled then
-            antiKnockbackBtn.Text = "ANTI KB: ON"
-            antiKnockbackBtn.BackgroundColor3 = Color3.fromRGB(50,255,50)
-            enableAntiKnockback()
-        else
-            antiKnockbackBtn.Text = "ANTI KB: OFF"
-            antiKnockbackBtn.BackgroundColor3 = Color3.fromRGB(200,100,50)
-            disableAntiKnockback()
-        end
-    end)
-
-    aimbotBtn.MouseButton1Click:Connect(function()
-        State.isAimbotEnabled = not State.isAimbotEnabled
-        if State.isAimbotEnabled then
-            aimbotBtn.Text = "2D AIMBOT: ON"
-            aimbotBtn.BackgroundColor3 = Color3.fromRGB(50,255,50)
-            enableAimbot()
-        else
-            aimbotBtn.Text = "2D AIMBOT: OFF"
-            aimbotBtn.BackgroundColor3 = Color3.fromRGB(255,50,255)
-            disableAimbot()
-        end
-    end)
-
-    autoStealBtn.MouseButton1Click:Connect(function()
-        if not State.autoStealEnabled then
-            enableAutoSteal()
-            autoStealBtn.Text = "AUTO STEAL: ON"
-            autoStealBtn.BackgroundColor3 = Color3.fromRGB(50,255,50)
-        else
-            disableAutoSteal()
-            autoStealBtn.Text = "AUTO STEAL: OFF"
-            autoStealBtn.BackgroundColor3 = Color3.fromRGB(255,150,50)
-        end
-    end)
-
-    -- SMART TP TOGGLE
-    smartTpBtn.MouseButton1Click:Connect(function()
-        if not State.isSmartTpEnabled then
-            enableSmartTp()
-            smartTpBtn.Text = "SMART TP: ON"
-            smartTpBtn.BackgroundColor3 = Color3.fromRGB(50,255,50)
-        else
-            disableSmartTp()
-            smartTpBtn.Text = "SMART TP: OFF"
-            smartTpBtn.BackgroundColor3 = Color3.fromRGB(150,150,150)
-        end
-    end)
-end
-
 -- ==================== PROXIMITY PROMPT HANDLER ====================
 local function setupProximityPromptHandler()
     if not ProximityPromptService then return end
@@ -891,7 +677,257 @@ local function setupProximityPromptHandler()
     end)
 end
 
+-- ==================== VAPE-STYLE MAIN GUI ====================
+local function createMainGUI()
+    if State.mainGui then State.mainGui:Destroy() end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "SwaveHubVape"
+    gui.ResetOnSpawn = false
+    gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    State.mainGui = gui
+
+    -- Warning label
+    local warningLabel = Instance.new("TextLabel")
+    warningLabel.Size = UDim2.new(0, 200, 0, 40)
+    warningLabel.Position = UDim2.new(0.5, -100, 0.8, 0)
+    warningLabel.Text = "DO NOT MOVE"
+    warningLabel.TextColor3 = Config.Gui.Main.AccentColor
+    warningLabel.Font = Enum.Font.GothamBold
+    warningLabel.TextSize = 20
+    warningLabel.BackgroundColor3 = Color3.fromRGB(20, 40, 80)
+    warningLabel.BackgroundTransparency = 0.2
+    warningLabel.Visible = false
+    warningLabel.Parent = gui
+    createUICorner(warningLabel, UDim.new(0, 8))
+    createUIStroke(warningLabel, Config.Gui.Main.AccentColor, 2)
+
+    -- Categories
+    local categories = {
+        {
+            title = "Combat",
+            color = Config.Gui.Main.AccentColor,
+            modules = {
+                {type="toggle", name="Aimbot", stateVar="isAimbotEnabled", onEnable=enableAimbot, onDisable=disableAimbot},
+                {type="toggle", name="AntiKB", stateVar="isAntiKnockbackEnabled", onEnable=enableAntiKnockback, onDisable=disableAntiKnockback},
+            }
+        },
+        {
+            title = "Movement",
+            color = Config.Gui.Main.AccentColor,
+            modules = {
+                {type="action", name="TP Forward", action=function()
+                    updateCharacterCache()
+                    if State.humanoidRootPart then
+                        State.humanoidRootPart.CFrame = State.humanoidRootPart.CFrame * CFrame.new(0,0,-5)
+                    end
+                end},
+                {type="toggle", name="Smart TP", stateVar="isSmartTpEnabled", onEnable=enableSmartTp, onDisable=disableSmartTp},
+            }
+        },
+        {
+            title = "World",
+            color = Config.Gui.Main.AccentColor,
+            modules = {
+                {type="action", name="TP Base A", action=function() teleportSequence(Config.BaseATeleportPoints, warningLabel) end},
+                {type="action", name="TP Base B", action=function() teleportSequence(Config.BaseBTeleportPoints, warningLabel) end},
+                {type="toggle", name="Auto Steal", stateVar="autoStealEnabled", onEnable=enableAutoSteal, onDisable=disableAutoSteal},
+            }
+        },
+        {
+            title = "Utility",
+            color = Config.Gui.Main.AccentColor,
+            modules = {
+                {type="action", name="Set Pos", action=function()
+                    updateCharacterCache()
+                    if State.humanoidRootPart then
+                        State.savedPosition = State.humanoidRootPart.CFrame
+                        createBeam(State.savedPosition.Position)
+                    end
+                end},
+                {type="action", name="Clear Pos", action=clearSavedPosition},
+                {type="toggle", name="Click TP", stateVar="isClickTpEnabled", onEnable=function()
+                    State.isClickTpEnabled = true
+                    local mouse = LocalPlayer:GetMouse()
+                    if State.clickTpConnection then State.clickTpConnection:Disconnect() end
+                    State.clickTpConnection = mouse.Button1Down:Connect(function()
+                        updateCharacterCache()
+                        if not State.humanoidRootPart then return end
+                        local hit = mouse.Hit
+                        if hit then
+                            local destination = hit.Position + Vector3.new(0, 3, 0)
+                            State.humanoidRootPart.CFrame = CFrame.new(destination)
+                        end
+                    end)
+                end, onDisable=function()
+                    State.isClickTpEnabled = false
+                    if State.clickTpConnection then
+                        State.clickTpConnection:Disconnect()
+                        State.clickTpConnection = nil
+                    end
+                end},
+            }
+        }
+    }
+
+    local panelX = 20
+    local panelY = 50
+    local panelWidth = 140
+    local moduleHeight = 30
+    local spacing = 10
+
+    for _, cat in ipairs(categories) do
+        local panel = Instance.new("Frame")
+        panel.Size = UDim2.new(0, panelWidth, 0, #cat.modules * moduleHeight + 40)
+        panel.Position = UDim2.new(0, panelX, 0, panelY)
+        panel.BackgroundColor3 = Config.Gui.Main.BgColor
+        panel.BorderSizePixel = 0
+        panel.Parent = gui
+        createUICorner(panel, UDim.new(0, 6))
+        createUIStroke(panel, cat.color, 1.5)
+
+        local titleBar = Instance.new("Frame")
+        titleBar.Size = UDim2.new(1, 0, 0, 25)
+        titleBar.Position = UDim2.new(0, 0, 0, 0)
+        titleBar.BackgroundColor3 = cat.color
+        titleBar.BorderSizePixel = 0
+        titleBar.Parent = panel
+        createUICorner(titleBar, UDim.new(0, 6))
+
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Size = UDim2.new(1, -10, 1, 0)
+        titleLabel.Position = UDim2.new(0, 5, 0, 0)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = cat.title
+        titleLabel.TextColor3 = Color3.new(0, 0, 0)
+        titleLabel.Font = Enum.Font.GothamBold
+        titleLabel.TextSize = 14
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        titleLabel.Parent = titleBar
+
+        -- Dragging
+        local dragging = false
+        local dragStart, startPos, dragInput
+        titleBar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+                dragStart = input.Position
+                startPos = panel.Position
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+        titleBar.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement then
+                dragInput = input
+            end
+        end)
+        UserInputService.InputChanged:Connect(function(input)
+            if input == dragInput and dragging then
+                local delta = input.Position - dragStart
+                panel.Position = UDim2.new(
+                    startPos.X.Scale,
+                    startPos.X.Offset + delta.X,
+                    startPos.Y.Scale,
+                    startPos.Y.Offset + delta.Y
+                )
+            end
+        end)
+
+        local container = Instance.new("Frame")
+        container.Size = UDim2.new(1, -10, 0, #cat.modules * moduleHeight)
+        container.Position = UDim2.new(0, 5, 0, 30)
+        container.BackgroundTransparency = 1
+        container.Parent = panel
+
+        local layout = Instance.new("UIListLayout")
+        layout.FillDirection = Enum.FillDirection.Vertical
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.Padding = UDim.new(0, 5)
+        layout.Parent = container
+
+        for i, mod in ipairs(cat.modules) do
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, 0, 0, moduleHeight - 5)
+            btn.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+            btn.Text = mod.name
+            btn.TextColor3 = Color3.new(1,1,1)
+            btn.Font = Enum.Font.Gotham
+            btn.TextSize = 12
+            btn.AutoButtonColor = false
+            btn.Parent = container
+
+            createUICorner(btn, UDim.new(0, 4))
+            createUIStroke(btn, cat.color, 1)
+
+            btn.MouseEnter:Connect(function()
+                btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            end)
+            btn.MouseLeave:Connect(function()
+                if mod.type == "toggle" then
+                    local state = State[mod.stateVar]
+                    if state then
+                        btn.BackgroundColor3 = cat.color
+                    else
+                        btn.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+                    end
+                else
+                    btn.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+                end
+            end)
+
+            if mod.type == "toggle" then
+                local state = State[mod.stateVar] or false
+                if state then
+                    btn.BackgroundColor3 = cat.color
+                end
+
+                btn.MouseButton1Click:Connect(function()
+                    local newState = not State[mod.stateVar]
+                    State[mod.stateVar] = newState
+                    if newState then
+                        mod.onEnable()
+                        btn.BackgroundColor3 = cat.color
+                    else
+                        mod.onDisable()
+                        btn.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+                    end
+                end)
+            else -- action
+                btn.MouseButton1Click:Connect(function()
+                    mod.action()
+                    btn.BackgroundColor3 = cat.color
+                    task.wait(0.1)
+                    btn.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
+                end)
+            end
+        end
+
+        panelX = panelX + panelWidth + 10
+    end
+end
+
+-- ==================== KEYBIND (NOW 'P') ====================
+local function setupKeybind()
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        if input.KeyCode == Enum.KeyCode.P then
+            local focused = UserInputService:GetFocusedTextBox()
+            if focused then return end
+
+            if State.mainGui then
+                State.mainGui.Enabled = not State.mainGui.Enabled
+            end
+        end
+    end)
+end
+
 -- ==================== INIT ====================
 createMainGUI()
 setupProximityPromptHandler()
+setupKeybind()
 addCleanup(cleanupAll)
